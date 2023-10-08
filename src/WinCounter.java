@@ -1,8 +1,8 @@
-class WinCounterDecorator implements Move {
+class WinCounter implements Move {
     private final Move strategy;
     private int wins = 0;
 
-    public WinCounterDecorator(Move strategy) {
+    public WinCounter(Move strategy) {
         this.strategy = strategy;
     }
 

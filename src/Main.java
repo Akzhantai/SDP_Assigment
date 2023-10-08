@@ -1,53 +1,68 @@
 import java.util.Scanner;
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Choose your move(Rock/Paper/Scissors:");
-        String myMove = sc.nextLine();
-        Move myMoveStrategy = playerMove(myMove);
-        if (myMoveStrategy != null) {
-            // Get the computer's move using the Singleton RandomGenerator
-            Move compMoveStrategy = computerMove();
-            System.out.println();
-            System.out.println("Computer's move:");
-            System.out.println(compMoveStrategy.makeMove());
+        WinCounter playerWins = new WinCounter(new Rock());
+        WinCounter computerWins = new WinCounter(new Rock());
 
-            whoIsWinner(myMoveStrategy, compMoveStrategy);
-        } else {
-            System.out.println("Invalid input!");
+        while (true) {
+            System.out.println("Choose your move: (Rock/Paper/Scissors)");
+            String myMove = sc.nextLine();
+
+            Move playerMove = myMoveCheck(myMove);
+            if (playerMove != null) {
+
+                Move compMove = computerMoveSelector();
+                System.out.println("Computer's move:");
+                String computerMove = compMove.makeMove();
+                System.out.println(computerMove);
+
+                determineWinner(playerMove, compMove, playerWins, computerWins);
+
+                if (playerWins.getWins() == 3) {
+                    System.out.println("You win the game!");
+                    break;
+                } else if (computerWins.getWins() == 3) {
+                    System.out.println("Computer wins the game!");
+                    break;
+                }
+            } else {
+                System.out.println("Invalid input! Please try again.");
+            }
         }
     }
-    private static Move playerMove(String move) {
-        return switch (move.toLowerCase()) {
-            case "rock" -> new  Rock();
-            case "paper" -> new Paper();
-            case "scissors" -> new Scissors();
+    private static Move myMoveCheck(String move) {
+        return switch (move) {
+            case "Rock" -> new  Rock();
+            case "Paper" -> new Paper();
+            case "Scissors" -> new Scissors();
             default -> null;
         };
     }
 
-    private static Move computerMove() {
+    private static Move computerMoveSelector() {
         String[] moves = {"Rock", "Paper", "Scissors"};
         int select = RandomGenerator.getInstance().nextInt(moves.length);
-        return playerMove(moves[select]);
+        return myMoveCheck(moves[select]);
     }
-
-    private static void whoIsWinner(Move player, Move computer) {
+    private static void determineWinner(Move player, Move computer, WinCounter playerWins, WinCounter computerWins) {
         String playerMove = player.makeMove();
         String computerMove = computer.makeMove();
 
-        System.out.println();
-
         if (playerMove.equals(computerMove)) {
-            System.out.println("Tie!");
+            System.out.println("It's a tie!");
         } else if (
                 (playerMove.equals("Rock") && computerMove.equals("Scissors")) ||
                         (playerMove.equals("Paper") && computerMove.equals("Rock")) ||
                         (playerMove.equals("Scissors") && computerMove.equals("Paper"))
         ) {
-            System.out.println("You win!");
+            System.out.println("You win this round!");
+            playerWins.incrementWins();
         } else {
-            System.out.println("Computer wins!");
+            System.out.println("Computer wins this round!");
+            computerWins.incrementWins();
         }
+
+        System.out.println("Score: You " + playerWins.getWins() + " - " + computerWins.getWins() + " Computer");
     }
 }
